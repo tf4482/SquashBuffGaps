@@ -1,0 +1,13 @@
+## Interface: 16001
+## Title: SquashBuffGaps
+## Notes: Closes gaps between shown tracked buffs in the Cooldown Manager
+## Author: tf4482
+## Version: @project-version@
+## IconTexture: Interface/Icons/Spell_Holy_WordFortitude
+## SavedVariables: SquashBuffGapsDB
+
+Output.lua
+Store.lua
+Settings.lua
+Slash.lua
+SquashBuffGaps.lua
