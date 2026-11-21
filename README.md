@@ -25,7 +25,7 @@ Closes the empty slots between shown tracked buffs in the game's Cooldown Manage
 ## Install
 
 1. Download `SquashBuffGaps-vX.Y.Z.zip` from the
-   [releases](https://github.com/tf4482/SquashBuffGaps/releases).
+   [releases](https://github.com/tf4482/SquashBuffGaps/releases) or CurseForge.
 2. Unzip it into `World of Warcraft/<game folder>/Interface/AddOns/`.
 3. Restart the game or type `/reload`.
 

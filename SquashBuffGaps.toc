@@ -5,6 +5,7 @@
 ## Version: @project-version@
 ## IconTexture: Interface/Icons/Spell_Holy_WordFortitude
 ## SavedVariables: SquashBuffGapsDB
+## X-Curse-Project-ID: 1822188
 
 Output.lua
 Store.lua
