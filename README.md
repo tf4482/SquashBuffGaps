@@ -22,6 +22,17 @@ Closes the empty slots between shown tracked buffs in the game's Cooldown Manage
   from the addon compartment menu.
 - **Chat commands** - every option can also be changed by slash command.
 
+## Screenshots
+
+All tracked buffs active, then one expired: the others close the gap against the right edge.
+
+![All tracked buffs active](docs/icons-all-active.png)
+![One buff expired, no gap](docs/icons-one-expired.png)
+
+Settings page under Options > AddOns:
+
+![Settings page](docs/settings-page.png)
+
 ## Install
 
 1. Download `SquashBuffGaps-vX.Y.Z.zip` from the
