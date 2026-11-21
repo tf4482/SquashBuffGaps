@@ -17,6 +17,59 @@ local function BySlot(a, b)
   return a.layoutIndex < b.layoutIndex
 end
 
+-- item frames this addon made invisible
+local faded = {}
+
+-- cooldown ID per item frame that has shown a totem
+local totemItems = {}
+
+-- whether a value is hidden from addons
+local function Secret(value)
+  return issecretvalue ~= nil and issecretvalue(value)
+end
+
+-- totem item whose totem no longer exists; only checked out of combat, where totem data is
+-- readable; in combat the game's own display stays untouched
+local function Stale(item)
+  local data, cooldownID = item.totemData, item.cooldownID
+  if InCombatLockdown() or Secret(data) or Secret(cooldownID) then
+    return false
+  end
+  if data then
+    if not data.slot then
+      return false
+    end
+    -- remember totem items until the frame gets another cooldown
+    totemItems[item] = cooldownID
+    -- empty slots still report haveTotem = true, but with no spell and no duration
+    local have, _, _, duration, _, _, spellID = GetTotemInfo(data.slot)
+    return not have or duration == 0 or spellID ~= data.spellID
+  end
+  if totemItems[item] == nil or totemItems[item] ~= cooldownID then
+    totemItems[item] = nil
+    return false
+  end
+  -- totem gone but Blizzard keeps the item active through its linked spell; keep it only
+  -- while the buff the totem gives is still on
+  return item.auraInstanceID == nil
+end
+
+-- fade stale totem items out and bring back the ones that are fine again
+local function Fade(item)
+  if Stale(item) then
+    item:SetAlpha(0)
+    faded[item] = true
+  elseif faded[item] then
+    item:SetAlpha(1)
+    faded[item] = nil
+  end
+end
+
+-- whether an item takes a slot when squashing
+local function Visible(item)
+  return item:IsShown() and not faded[item]
+end
+
 -- place items like Blizzard's grid layout: shown items packed from the start edge when
 -- squashing, every item in its own slot when restoring after switching off
 local function Apply(viewer, restore)
@@ -29,6 +82,7 @@ local function Apply(viewer, restore)
   for item in viewer.itemFramePool:EnumerateActive() do
     if item.layoutIndex then
       items[#items + 1] = item
+      Fade(item)
     end
   end
   if not (squash or restore) then
@@ -68,7 +122,7 @@ local function Apply(viewer, restore)
   local offset = 0
   if squash and viewer:GetName() == "BuffIconCooldownViewer" then
     for _, item in ipairs(items) do
-      if not item:IsShown() then
+      if not Visible(item) then
         offset = offset + (horizontal and item:GetWidth() or item:GetHeight()) + padding
       end
     end
@@ -76,7 +130,7 @@ local function Apply(viewer, restore)
 
   -- walk the slots; hidden items take no room when squashing
   for _, item in ipairs(items) do
-    if item:IsShown() or not squash then
+    if Visible(item) or not squash then
       local pos = shift + offset * sign
       item:ClearAllPoints()
       if horizontal then
@@ -117,6 +171,18 @@ local function RefreshAll()
     local viewer = _G[name]
     if viewer then
       Refresh(viewer, true)
+    end
+  end
+end
+
+-- re-check both viewers after Blizzard handled a totem change
+local totemPending = false
+local function CheckTotems()
+  totemPending = false
+  for name in pairs(viewers) do
+    local viewer = _G[name]
+    if viewer then
+      Apply(viewer)
     end
   end
 end
@@ -243,10 +309,31 @@ function events.ADDON_LOADED(name)
   end
 end
 
--- one frame dispatching all events above
+-- check totems once Blizzard handled the current change
+local function ScheduleCheck()
+  if not totemPending and not InCombatLockdown() then
+    totemPending = true
+    C_Timer.After(0, CheckTotems)
+  end
+end
+
+-- totem placed or removed
+events.PLAYER_TOTEM_UPDATE = ScheduleCheck
+
+-- player buffs changed: a totem buff may have ended
+events.UNIT_AURA = ScheduleCheck
+
+-- combat over: totem data is readable again
+events.PLAYER_REGEN_ENABLED = ScheduleCheck
+
+-- one frame dispatching all events above; unit events only for the player
 local frame = CreateFrame("Frame")
 for event in pairs(events) do
-  frame:RegisterEvent(event)
+  if event:find("^UNIT_") then
+    frame:RegisterUnitEvent(event, "player")
+  else
+    frame:RegisterEvent(event)
+  end
 end
 frame:SetScript("OnEvent", function(_, event, ...)
   events[event](...)

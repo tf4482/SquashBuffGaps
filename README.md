@@ -14,6 +14,8 @@ Closes the empty slots between shown tracked buffs in the game's Cooldown Manage
 - **Follows your layout** - orientation and icon direction from Edit Mode decide the edge
   items pack against, in the order set in the Cooldown Manager.
 - **Remembered** - the settings are saved per account; default is off.
+- **Totem fix** - out of combat, tracked totems that are no longer out disappear, even
+  when the game leaves them on screen with a frozen timer; always on.
 - **Edit Mode panel** - selecting Tracked Buffs or Tracked Bars in Edit Mode shows the
   options right below Blizzard's settings dialog.
 - **Settings page** - all options in the game menu under Options > AddOns, also opened
@@ -46,6 +48,7 @@ Closes the empty slots between shown tracked buffs in the game's Cooldown Manage
 - Vertical bars: `/sbg bars on` stacks the active bars without holes from the start edge.
 - Bars anchored above the player frame: `/sbg grow up` stacks them upward from the bottom.
 - In Edit Mode: click Tracked Bars, tick "Close Gaps" below the dialog and pick "Up".
+- Totemic Recall leaves some totems on screen: out of combat they disappear on their own.
 - Back to the game's own spacing: `/sbg icons off` and `/sbg bars off`.
 
 ## Develop
