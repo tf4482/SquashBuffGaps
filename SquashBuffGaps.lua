@@ -238,9 +238,11 @@ local function CreatePanel()
   panel.grow:SetPoint("TOPRIGHT", -20, -72)
   panel.grow:SetWidth(150)
   local label = panel.grow:CreateFontString(nil, "ARTWORK", "GameFontHighlightMedium")
-  label:SetPoint("RIGHT", panel.grow, "LEFT", -10, 0)
-  label:SetPoint("LEFT", panel, "LEFT", 20, 0)
+  -- same top and height as the dropdown, so both share one line
+  label:SetPoint("TOPLEFT", panel, "TOPLEFT", 20, -72)
+  label:SetHeight(panel.grow:GetHeight())
   label:SetJustifyH("LEFT")
+  label:SetJustifyV("MIDDLE")
   label:SetText("Bars Grow")
   local function IsSelected(value)
     return ns.db.barsGrow == value
