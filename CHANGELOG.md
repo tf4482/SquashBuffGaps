@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-11-21
+
+### Fixed
+
+- Bars Grow label overlapping the Close Gaps checkbox in the Edit Mode panel
+
 ## [0.1.2] - 2026-11-21
 
 ### Added
