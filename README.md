@@ -13,7 +13,8 @@ Closes the empty slots between shown tracked buffs in the game's Cooldown Manage
   active.
 - **Follows your layout** - orientation and icon direction from Edit Mode decide the edge
   items pack against, in the order set in the Cooldown Manager.
-- **Remembered** - the settings are saved per account; default is off.
+- **Remembered** - settings are saved per account, or per character with one checkbox;
+  default is off.
 - **Totem fix** - out of combat, tracked totems that are no longer out disappear, even
   when the game leaves them on screen with a frozen timer; always on.
 - **Edit Mode panel** - selecting Tracked Buffs or Tracked Bars in Edit Mode shows the
@@ -37,7 +38,7 @@ Settings page under Options > AddOns:
 
 1. Download `SquashBuffGaps-vX.Y.Z.zip` from the
    [releases](https://github.com/tf4482/SquashBuffGaps/releases) or CurseForge.
-2. Unzip it into `World of Warcraft/<game folder>/Interface/AddOns/`.
+2. Unzip it into `World of Warcraft/_forever_/Interface/AddOns/`.
 3. Restart the game or type `/reload`.
 
 ## Usage
@@ -47,6 +48,11 @@ Settings page under Options > AddOns:
 /sbg icons on|off close gaps between tracked buff icons
 /sbg bars on|off  close gaps between tracked buff bars
 /sbg grow down|up direction buff bars stack in
+/sbg character on use settings for this character only
+/sbg character off use the account settings again
+/sbg test         re-place the tracked buffs once now
+/sbg reset        reset the settings to defaults
+/sbg debug on     show what the addon does, until /reload
 /sbg config       open the settings page
 /sbg help         list all commands
 ```
@@ -61,6 +67,7 @@ Settings page under Options > AddOns:
 - In Edit Mode: click Tracked Bars, tick "Close Gaps" below the dialog and pick "Up".
 - Totemic Recall leaves some totems on screen: out of combat they disappear on their own.
 - Back to the game's own spacing: `/sbg icons off` and `/sbg bars off`.
+- Icons closed on one character only: `/sbg character on`, then `/sbg icons on`.
 
 ## Develop
 
@@ -71,8 +78,10 @@ Check the code with [Luacheck](https://github.com/lunarmodules/luacheck) before 
 luacheck .
 ```
 
-Release: push an annotated tag `vX.Y.Z`; GitHub Actions packages the addon with the
-BigWigs packager and publishes it.
+Deploy locally: run `deploy.bat`; it builds `release/SquashBuffGaps-vX.Y.Z.zip` from `VERSION`.
+
+Release: set `VERSION` to `X.Y.Z`, then push an annotated tag `vX.Y.Z`; GitHub Actions
+packages the addon with the BigWigs packager and publishes it.
 
 ## License
 
