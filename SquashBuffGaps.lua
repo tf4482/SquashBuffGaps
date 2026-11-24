@@ -143,11 +143,41 @@ local function Apply(viewer, restore)
   end
 end
 
+-- viewers waiting for Apply, with their restore flag
+local pending = {}
+-- debounce timer; bursts of layout and show/hide calls collapse into one Apply per viewer
+local timer
+
+-- apply pending viewers; protected ones wait for the end of combat
+local function RunPending()
+  timer = nil
+  local blocked = false
+  for viewer, restore in pairs(pending) do
+    if InCombatLockdown() and viewer:IsProtected() then
+      blocked = true
+    else
+      pending[viewer] = nil
+      Apply(viewer, restore)
+    end
+  end
+  if blocked then
+    ns.AfterCombat(RunPending)
+  end
+end
+
+-- queue a viewer for Apply shortly; a restore request sticks until applied
+local function Schedule(viewer, restore)
+  pending[viewer] = pending[viewer] or restore or false
+  if not timer then
+    timer = C_Timer.NewTimer(0.05, RunPending)
+  end
+end
+
 -- re-place the viewer of an item that was shown or hidden
 local function OnItemToggled(item)
   local viewer = item:GetParent()
   if viewer and viewers[viewer:GetName()] then
-    Apply(viewer)
+    Schedule(viewer)
   end
 end
 
@@ -162,7 +192,7 @@ local function Refresh(viewer, restore)
       end
     end
   end
-  Apply(viewer, restore)
+  Schedule(viewer, restore)
 end
 
 -- re-place both viewers after a setting changes
@@ -182,7 +212,7 @@ local function CheckTotems()
   for name in pairs(viewers) do
     local viewer = _G[name]
     if viewer then
-      Apply(viewer)
+      Schedule(viewer)
     end
   end
 end

@@ -9,6 +9,7 @@
 
 Output.lua
 Store.lua
+Combat.lua
 Settings.lua
 Slash.lua
 SquashBuffGaps.lua

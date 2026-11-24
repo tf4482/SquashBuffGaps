@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- Stutter from re-placing items on every layout, show, and hide; bursts now apply once
+- Re-placing protected viewers in combat now waits until combat ends
+
 ## [0.1.4] - 2026-11-24
 
 ### Changed
