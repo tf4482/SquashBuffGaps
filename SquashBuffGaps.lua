@@ -76,7 +76,7 @@ local function Apply(viewer, restore)
   if ns.db == nil or not viewer.itemFramePool or viewer.isHorizontal == nil then
     return
   end
-  local squash = ns.db[viewers[viewer:GetName()]]
+  local squash = ns.Get(viewers[viewer:GetName()])
 
   wipe(items)
   for item in viewer.itemFramePool:EnumerateActive() do
@@ -94,7 +94,7 @@ local function Apply(viewer, restore)
   local right, up = viewer.layoutFramesGoingRight, viewer.layoutFramesGoingUp
   local horizontal = viewer.isHorizontal
   if squash and viewer:GetName() == "BuffBarCooldownViewer" then
-    horizontal, up = false, ns.db.barsGrow == "up"
+    horizontal, up = false, ns.Get("barsGrow") == "up"
   end
   local point = (up and "BOTTOM" or "TOP") .. (right and "LEFT" or "RIGHT")
   local padding = (horizontal and viewer.childXPadding or viewer.childYPadding) or 0
@@ -157,6 +157,7 @@ local function RunPending()
       blocked = true
     else
       pending[viewer] = nil
+      ns.Debug("placing " .. viewer:GetName())
       Apply(viewer, restore)
     end
   end
@@ -230,7 +231,7 @@ local function UpdatePanel()
     return
   end
   panel.key = key
-  panel.gaps:SetChecked(ns.db[key])
+  panel.gaps:SetChecked(ns.Get(key))
   panel.grow:SetShown(key == "bars")
   panel:SetHeight(key == "bars" and 110 or 75)
   panel:SetWidth(dialog:GetWidth())
@@ -275,7 +276,7 @@ local function CreatePanel()
   label:SetJustifyV("MIDDLE")
   label:SetText("Bars Grow")
   local function IsSelected(value)
-    return ns.db.barsGrow == value
+    return ns.Get("barsGrow") == value
   end
   local function SetSelected(value)
     ns.Set("barsGrow", value)
@@ -299,9 +300,10 @@ end
 
 -- one status line per viewer, with a hint when the Cooldown Manager is missing
 local function Status()
-  ns.Status("Icons", ns.OnOff(ns.db.icons))
-  ns.Status("Bars", ns.OnOff(ns.db.bars))
-  ns.Status("Bars grow", ns.Color("value", ns.db.barsGrow))
+  ns.Status("Icons", ns.OnOff(ns.Get("icons")))
+  ns.Status("Bars", ns.OnOff(ns.Get("bars")))
+  ns.Status("Bars grow", ns.Color("value", ns.Get("barsGrow")))
+  ns.Status("Per character", ns.OnOff(ns.char.perCharacter))
   if not BuffIconCooldownViewer then
     ns.Warn("Cooldown Manager not loaded (inactive)")
   end
@@ -311,6 +313,22 @@ end
 local function Switch(key, enabled)
   ns.Set(key, enabled)
   Status()
+end
+
+-- switch per-character settings and report the new state
+local function PerCharacter(enabled)
+  ns.Set("perCharacter", enabled)
+  Status()
+end
+
+-- re-place both viewers once now, for checking the effect in game
+local function Test()
+  if not BuffIconCooldownViewer then
+    ns.Warn("Cooldown Manager not loaded (inactive)")
+    return
+  end
+  RefreshAll()
+  ns.Print("test: tracked buffs re-placed")
 end
 
 -- run after every Blizzard layout pass of a viewer, then place once
@@ -350,7 +368,10 @@ local function ScheduleCheck()
 end
 
 -- totem placed or removed
-events.PLAYER_TOTEM_UPDATE = ScheduleCheck
+function events.PLAYER_TOTEM_UPDATE()
+  ns.Debug("PLAYER_TOTEM_UPDATE fired")
+  ScheduleCheck()
+end
 
 -- player buffs changed: a totem buff may have ended
 events.UNIT_AURA = ScheduleCheck
@@ -361,7 +382,10 @@ events.PLAYER_REGEN_ENABLED = ScheduleCheck
 -- one frame dispatching all events above; unit events only for the player
 local frame = CreateFrame("Frame")
 for event in pairs(events) do
-  if event:find("^UNIT_") then
+  -- skip events this client does not know
+  if not C_EventUtils.IsEventValid(event) then
+    ns.Debug("unknown event " .. event)
+  elseif event:find("^UNIT_") then
     frame:RegisterUnitEvent(event, "player")
   else
     frame:RegisterEvent(event)
@@ -390,6 +414,31 @@ ns.Command({
   run = function(args)
     ns.Set("barsGrow", args.direction)
     Status()
+  end,
+})
+ns.Command({
+  name = "character",
+  help = "use settings for this character only, or the account's",
+  args = onOff,
+  run = function(args) PerCharacter(args.state == "on") end,
+})
+ns.Command({ name = "test", help = "re-place the tracked buffs once now", run = Test })
+ns.Command({
+  name = "reset",
+  help = "reset the active profile's settings to defaults",
+  run = function()
+    ns.ResetSettings()
+    ns.Success("settings reset to defaults")
+    Status()
+  end,
+})
+ns.Command({
+  name = "debug",
+  help = "show what the addon does in chat, until /reload",
+  args = onOff,
+  run = function(args)
+    ns.debug = args.state == "on"
+    ns.Status("debug", ns.OnOff(ns.debug))
   end,
 })
 ns.Command({ name = "config", help = "open the settings page", run = ns.OpenSettings })
