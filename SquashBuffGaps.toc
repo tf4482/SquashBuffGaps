@@ -5,6 +5,7 @@
 ## Version: @project-version@
 ## IconTexture: Interface/Icons/spell_nature_giftofthewild
 ## SavedVariables: SquashBuffGapsDB
+## SavedVariablesPerCharacter: SquashBuffGapsCharDB
 ## X-Curse-Project-ID: 1822188
 
 Output.lua
