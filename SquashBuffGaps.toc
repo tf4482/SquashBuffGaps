@@ -3,7 +3,7 @@
 ## Notes: Closes gaps between shown tracked buffs in the Cooldown Manager
 ## Author: tf4482
 ## Version: @project-version@
-## IconTexture: Interface/Icons/Spell_Holy_WordFortitude
+## IconTexture: Interface/Icons/spell_nature_giftofthewild
 ## SavedVariables: SquashBuffGapsDB
 ## X-Curse-Project-ID: 1822188
 
