@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 
 ## [Unreleased]
 
+### Added
+
+- `Per character` checkbox and `/sbg character on|off`: settings per account or per character
+- `/sbg test`, `/sbg reset`, and `/sbg debug on|off`
+
 ### Fixed
 
 - Stutter from re-placing items on every layout, show, and hide; bursts now apply once
